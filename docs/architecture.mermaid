@@ -1,0 +1,14 @@
+flowchart TD
+    A[Ethereum RPC Provider] --> B[AaveOracleService]
+    A --> C[UniswapQuoteService]
+
+    B --> D[PriceComparisonService]
+    C --> D
+
+    D --> E[ArbitrageDetectionService]
+    E --> F[OpportunityRepository]
+    E --> G[AlertService]
+
+    F --> H[PostgreSQL]
+    H --> I[REST API]
+    I --> J[Dashboard]
