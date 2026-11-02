@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "DeFi-Arbitrage-Monitor",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

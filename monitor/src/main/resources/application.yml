@@ -3,3 +3,7 @@ spring:
     name: monitor
   profiles:
     active: local
+
+monitor:
+  chain:
+    rpc-url: ${RPC_URL}
