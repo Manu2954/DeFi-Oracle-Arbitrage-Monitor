@@ -5,4 +5,10 @@ public record JsonRpcRequest(
         String method,
         Object[] params,
         int id) {
+
+  public record CallParams(
+          String to,
+          String data
+  ) {
+  }
 }

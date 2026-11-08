@@ -1,0 +1,20 @@
+meta {
+  name: getAssetPrice
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8080/api/eth/latestBlockNumber
+  body: none
+  auth: inherit
+}
+
+headers {
+  xApiKeyEncoded: YWxjaF81QnV4cHUxeGk1b2NhMGpHSEpuazQ=
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
