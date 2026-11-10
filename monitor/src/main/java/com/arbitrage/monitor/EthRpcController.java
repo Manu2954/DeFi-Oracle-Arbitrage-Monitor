@@ -1,9 +1,8 @@
 package com.arbitrage.monitor;
 
-import org.springframework.stereotype.Controller;
+import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,13 +18,14 @@ public class EthRpcController {
   }
   
   @GetMapping("/latestBlockNumber")
-  public Long getBlockNumber(@RequestHeader String xApiKeyEncoded) {
-    return chainRpcClientService.getLatestBlockNumber(xApiKeyEncoded);
+  public Long getBlockNumber() {
+    return chainRpcClientService.getLatestBlockNumber();
   }
 
   @GetMapping("/assetPrice/{address}")
-  public String getAssetPrice(@RequestHeader String xApiKeyEncoded, @PathVariable String address) {
-    return chainRpcClientService.getAssetPrice(xApiKeyEncoded, address);
+  public BigDecimal getAssetPrice(@PathVariable String address,
+      @RequestParam(required = false) int decimals) {
+    return chainRpcClientService.getAssetPrice(address, decimals);
   }
 
 }

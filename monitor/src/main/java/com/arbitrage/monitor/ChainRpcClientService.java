@@ -1,11 +1,11 @@
 package com.arbitrage.monitor;
 
-import java.util.Base64;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
 @Service
@@ -27,10 +27,7 @@ public class ChainRpcClientService {
     this.abiEncodingService = abiEncodingService;
   }
 
-  public Long getLatestBlockNumber(String xApiKeyEncoded) {
-
-    String xApiKeyDecoded = getBase64Decoded(xApiKeyEncoded);
-
+  public Long getLatestBlockNumber() {
     JsonRpcRequest request = new JsonRpcRequest(
         JSON_RPC_VERSION,
         LATEST_BLOCK_NUMBER_METHOD,
@@ -39,7 +36,7 @@ public class ChainRpcClientService {
     );
 
     JsonRpcResponse<String> response = restClient.post()
-        .uri("/"+xApiKeyDecoded)
+        .uri("/")
         .body(request)
         .retrieve()
         .body(new ParameterizedTypeReference<JsonRpcResponse<String>>() {});
@@ -60,8 +57,7 @@ public class ChainRpcClientService {
     return blockNumber;
   }
 
-  public String getAssetPrice(String xApiKeyEncoded, String address) {
-    String xApiKeyDecoded = getBase64Decoded(xApiKeyEncoded);
+  public BigDecimal getAssetPrice(String address, int decimals) {
     String abiEncodedFunctionSignature =
         abiEncodingService.encodeFunctionSelector(AAVE_ORACLE_GET_ASSET_PRICE_SIGNATURE);
     String abiEncodedAddress =
@@ -80,24 +76,25 @@ public class ChainRpcClientService {
     );
 
     JsonRpcResponse<String> response =  restClient.post()
-        .uri("/" + xApiKeyDecoded)
+        .uri("/")
         .body(request)
         .retrieve()
         .body(new ParameterizedTypeReference<JsonRpcResponse<String>>() {
         });
 
     log.info("Asset price retrieved for address {}: {}", address, response);
-
-    assert response != null;
-    return response.result();
-  }
-
-
-  private String getBase64Decoded(String xApiKeyEncoded) {
-    if (!StringUtils.hasText(xApiKeyEncoded)) {
-      throw new IllegalArgumentException("x-api-key header is missing or empty");
+    if (response == null) {
+      throw new IllegalStateException("Empty RPC response");
     }
-    return new String(Base64.getDecoder().decode(xApiKeyEncoded));
+
+    if (response.error() != null) {
+      throw new RuntimeException("Error from JSON-RPC: "
+          + response.error().message());
+    }
+
+    BigInteger assetPrice = new BigInteger(response.result().substring(2), 16);
+
+    return new BigDecimal(assetPrice).movePointLeft(decimals);
   }
 
 }
